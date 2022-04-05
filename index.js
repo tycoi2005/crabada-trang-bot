@@ -1,30 +1,15 @@
 const TelegramBot = require('node-telegram-bot-api');
-const Config = require('./config');
-// joe-api utils
-const noop = require('joe-api/api/noop');
-const supply = require('joe-api/api/supply');
-const nftHat = require('joe-api/api/nft/hat');
-const price = require('joe-api/api/price');
-const bankerJoe = require('joe-api/api/bankerjoe');
-const Web3Candies = require("@defi.org/web3-candies");
-const WAVAX_ADDRESS = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7";
+const token = process.env.TOKEN;
+const mkturl = "https://marketplace.crabada.com/?breed_count=0&breed_count=5&currentType=selling&legend=0&legend=6&order=asc&order_by=price&page=1&price_range=0&price_range=15001&pure=0&pure=6"
+const apiurl = "https://api.crabada.com/public/crabada/selling?limit=20&page=1&from_breed_count=0&to_breed_count=5&from_legend=0&to_legend=6&from_pure=0&to_pure=6&from_price=0&to_price=1.5001e%2B22&orderBy=price&order=asc"
 
-// replace the value below with the Telegram token you receive from @BotFather
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const ticker = process.env.TOKEN_TICKER;
-const contract = process.env.TOKEN_CONTRACT;
-const pairAddress = process.env.LIQUIDITY_CONTRACT;
-const token2_contract = process.env.TOKEN2_CONTRACT;
-const tus_contract = process.env.TUS_TOKEN_CONTRACT;
+const fetchUrl = require("fetch").fetchUrl;
+const schedule = require('node-schedule');
+const cronTime = "*/5 * * * *" // every five minutes
+const groupChatId = 307822770
+
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});
-
-// Create our number formatter.
-const number_formatter = new Intl.NumberFormat('en-US', {
-  // These options are needed to round to whole numbers if that's what you want.
-  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-  maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
 
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, (msg, match) => {
@@ -33,153 +18,61 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
   // of the message
 
   const chatId = msg.chat.id;
-  const resp = match[1]; // the captured "whatever"
-  // log
-  console.log("command echo on chat id:", chatId, ". data:", resp)
+  const resp = match[1] + " chatID: " + chatId; // the captured "whatever"
+
   // send back the matched "whatever" to the chat
   bot.sendMessage(chatId, resp);
 });
 
-// Matches "/help [whatever]"
-bot.onText(/\/help/, (msg) => {
-  // 'msg' is the received Message from Telegram
-  // of the message
 
-  const chatId = msg.chat.id;
-  // log
-  console.log("command help on chat id:", chatId)
-  
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, Config.helpstring);
-});
-
-// Matches "/website|twitter|discord|docs|contracts|tokenomics [whatever]"
-bot.onText(/\/(website|twitter|discord|docs|contracts|tokenomics)/, (msg, match) => {
-  // 'msg' is the received Message from Telegram
-  // of the message
-
-  const chatId = msg.chat.id;
-  const resp = match[1]; // the command
-  // log
-  console.log("command url on chat id:", chatId, "match", match)
-  
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, Config[resp]);
-});
-
-// Matches "/crabemo [whatever]"
-bot.onText(/\/crabemo/, (msg) => {
-  // 'msg' is the received Message from Telegram
-  // of the message
-
-  const chatId = msg.chat.id;
-  // log
-  console.log("command crabemo on chat id:", chatId)
-  
-  // send back the matched "whatever" to the chat
-  sticker = Config.stickers[Math.floor(Math.random()*Config.stickers.length)];
-  bot.sendSticker(chatId, sticker);
-});
-
-// Matches "/price [whatever]"
-bot.onText(/\/price/, (msg) => {
+// Matches "/echo [whatever]"
+bot.onText(/\/check/, (msg, match) => {
   // 'msg' is the received Message from Telegram
   // 'match' is the result of executing the regexp above on the text content
   // of the message
 
   const chatId = msg.chat.id;
-  const token = ticker;
-  const token_contract = contract;
-  // log
-  console.log("command price on chat id:", chatId, ". contract:", token_contract)
-  try{
-    let wavax_price = 1;
-    price.getPrice(WAVAX_ADDRESS).then(rs=>{
-      wavax_price = rs;
-      return price.getPrice(token_contract);
-    }).then((token_price)=>{
-        let token_pricewavax = token_price/wavax_price;
-        let price_usd = parseFloat(Web3Candies.fmt18(token_price)).toFixed(Config.digits);
-        let price_avax = token_pricewavax.toFixed(Config.digits);
-
-        let msg_string = "$CRA: $" + price_usd +"\n" + price_avax+" $CRA/$AVAX";
-
-        bot.sendMessage(chatId, msg_string);
-      })
-  } catch (error) {
-    console.log(error)
-  }
-  // send back the matched "whatever" to the chat
+  doCheckCrab(chatId)
   
 });
 
-// Matches "/tusprice [whatever]"
-bot.onText(/\/tusprice/, (msg) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
+const doCheckCrab = (chatId) => {
+  fetchUrl(apiurl, function(error, meta, body){
+                if (!body){ return }
 
-  const chatId = msg.chat.id;
-  const token = ticker;
-  const token_contract = tus_contract;
-  // log
-  console.log("command tusprice on chat id:", chatId, ". contract:", token_contract)
-  try{
-    let wavax_price = 1;
-    price.getPrice(WAVAX_ADDRESS).then(rs=>{
-      wavax_price = rs;
-      return price.getPrice(token_contract);
-    }).then((token_price)=>{
-        let token_pricewavax = token_price/wavax_price;
-        let price_usd = parseFloat(Web3Candies.fmt18(token_price)).toFixed(Config.digits);
-        let price_avax = token_pricewavax.toFixed(Config.digits);
+                let doc = JSON.parse(body.toString());
+                if (!doc || !doc.result || !doc.result.data ) { return }
+                items = doc.result.data;
+                totalRecord = doc.result.totalRecord;
+                //console.log("items:",items)
+                console.log("totalRecord:",totalRecord)
+                if (totalRecord<1) return;
+                for (let i =0; i< items.length; i++){
+                  let item = items[i];
+                  console.log("item",item);
+                  if (item.breed_count < 1 && item.price < 1.5001e+22){
+                    bot.sendMessage( chatId , getCrabHTML(item), {parse_mode:'HTML'})
+                    return
+                  }
 
-        let msg_string = "$TUS: $" + price_usd +"\n" + price_avax+" $TUS/$AVAX";
+                  if (item.breed_count >= 1 && item.price < 1.2001e+22){
+                    bot.sendMessage( chatId , getCrabHTML(item), {parse_mode:'HTML'})
+                    return
+                  }
+                }
+                // send back the matched "whatever" to the chat
+                // bot.sendMessage(chatId, "totalRecord: " + doc.result.totalRecord);
+            });
+}
 
-        bot.sendMessage(chatId, msg_string);
-      })
-  } catch (error) {
-    console.log(error)
-  }
-  // send back the matched "whatever" to the chat
-  
-});
+const getCrabHTML = (crab) =>{
+  let url = "https://marketplace.crabada.com/crabada/"+crab.id;
+  let str = 'found crab <a href="' + url + '"> price ' + crab.price +', breed_count ' + crab.breed_count + '</a>'
+  return str;
+}
 
-// Matches "/about [whatever]"
-bot.onText(/\/about/, (msg) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
 
-  const chatId = msg.chat.id;
-  const token = ticker;
-  const token_contract = contract;
-  // log
-  console.log("command about on chat id:", chatId, ". contract:", token_contract)
-  try{
-    let circ_supply = -1;
-    let token_balance = 0;
-    let msg_string = null;
-    let price_usd = 1;
-    let max_supply = 1000000000;
-    price.getPrice(token_contract).then((rs)=>{
-        price_usd = parseFloat(Web3Candies.fmt18(rs)).toFixed(Config.digits);
-        let market_cap = max_supply * price_usd;
-        let full_diluted_market_cap = max_supply * price_usd;
-        msg_string = "$CRA: $" + price_usd 
-                          + "\nMarket Cap: $" + number_formatter.format(market_cap) 
-                          + "\nTotal Supply: " + number_formatter.format(max_supply)
-        if(!pairAddress) return {reserveToken0:0, reserveToken1:0};
-        return price.getReserves(token_contract,token2_contract, pairAddress)
-      }).then(rs=>{
-        token_balance = rs.reserveToken0;
-        let balance_value = (token_balance * price_usd * 2/1e18).toFixed(Config.digits);
-        msg_string += "\nJoe Liquidity: $" + number_formatter.format(balance_value);
-        bot.sendMessage(chatId, msg_string);
-      })
-  } catch (error) {
-    console.log(error)
-  }
-  // send back the matched "whatever" to the chat
-  
-});
+let checkCrabJob = schedule.scheduleJob(cronTime, function () {
+    console.log("doCheckCrab chatID #" + groupChatId)
+    doCheckCrab(groupChatId)
+})
