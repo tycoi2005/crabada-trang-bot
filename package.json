@@ -1,0 +1,14 @@
+{
+  "name": "crabada-trang-bot",
+  "version": "1.0.0",
+  "description": "bot catch cheap crabada",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "jaken",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.56.0"
+  }
+}
