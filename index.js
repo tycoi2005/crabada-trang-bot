@@ -5,7 +5,7 @@ const apiurl = "https://api.crabada.com/public/crabada/selling?limit=20&page=1&f
 
 const fetchUrl = require("fetch").fetchUrl;
 const schedule = require('node-schedule');
-const cronTime = "*/5 * * * *" // every five minutes
+const cronTime = "* * * * *" // every five minutes
 const groupChatId = 307822770
 
 // Create a bot that uses 'polling' to fetch new updates
