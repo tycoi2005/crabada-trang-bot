@@ -6,7 +6,7 @@ const apiurl = "https://api.crabada.com/public/crabada/selling?limit=20&page=1&f
 const fetchUrl = require("fetch").fetchUrl;
 const schedule = require('node-schedule');
 const cronTime = "* * * * *" // every five minutes
-const groupChatId = 307822770
+const groupChatId = -642386289
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});
