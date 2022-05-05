@@ -55,7 +55,7 @@ const doCheckCrab = (chatId) => {
                     return
                   }
 
-                  if (item.breed_count >= 1 && item.price < 1.2000e+22){
+                  if (item.breed_count >= 1 && item.price < 1.1000e+22){
                     bot.sendMessage( chatId , getCrabHTML(item), {parse_mode:'HTML'})
                     return
                   }
