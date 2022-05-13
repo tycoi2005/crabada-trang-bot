@@ -1,7 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TOKEN;
-const mkturl = "https://marketplace.crabada.com/?breed_count=0&breed_count=5&currentType=selling&legend=0&legend=6&order=asc&order_by=price&page=1&price_range=0&price_range=15001&pure=0&pure=6"
-const apiurl = "https://api.crabada.com/public/crabada/selling?limit=20&page=1&from_breed_count=0&to_breed_count=5&from_legend=0&to_legend=6&from_pure=0&to_pure=6&from_price=0&to_price=1.5001e%2B22&orderBy=price&order=asc"
+// old market
+//const mkturl = "https://marketplace.crabada.com/?breed_count=0&breed_count=5&currentType=selling&legend=0&legend=6&order=asc&order_by=price&page=1&price_range=0&price_range=15001&pure=0&pure=6"
+//const apiurl = "https://api.crabada.com/public/crabada/selling?limit=20&page=1&from_breed_count=0&to_breed_count=5&from_legend=0&to_legend=6&from_pure=0&to_pure=6&from_price=0&to_price=1.5001e%2B22&orderBy=price&order=asc"
+
+const mkturl = "https://market.crabada.com/?breed_count=0&breed_count=5&currentType=selling&legend=0&legend=6&order=asc&order_by=price&page=1&price_range=0&price_range=15001&pure=0&pure=6"
+const apiurl = "https://market-api.crabada.com/public/crabada/selling?limit=20&page=1&from_breed_count=0&to_breed_count=5&from_legend=0&to_legend=6&from_pure=0&to_pure=6&from_price=0&to_price=1.5001e%2B22&orderBy=price&order=asc"
 
 const fetchUrl = require("fetch").fetchUrl;
 const schedule = require('node-schedule');
