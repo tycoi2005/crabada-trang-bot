@@ -70,7 +70,7 @@ const doCheckCrab = (chatId) => {
 }
 
 const getCrabHTML = (crab) =>{
-  let url = "https://marketplace.crabada.com/crabada/"+crab.id;
+  let url = "https://market.crabada.com/crabada/"+crab.id;
   let str = 'found crab <a href="' + url + '"> price ' + crab.price +', breed_count ' + crab.breed_count + '</a>'
   return str;
 }
